@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Équilibrage MTE</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>📈 Application Équilibrage</h1>
+    <form method="post" enctype="multipart/form-data">
+        <label>Choisir des fichiers Excel :</label>
+        <input type="file" name="excel_files" multiple required><br><br>
+
+        <label>Méthode :</label>
+        <select name="method">
+            <option value="SPT">SPT</option>
+            <option value="RPW">RPW</option>
+            <option value="MTE">MTE</option>
+        </select><br><br>
+
+        <button type="submit">⚙️ Équilibrer</button>
+    </form>
+
+    {% if message %}
+        <p><strong>{{ message }}</strong></p>
+    {% endif %}
+
+    {% if fig_path %}
+        <h2>📊 Résultat :</h2>
+        <img src="{{ fig_path }}" width="600">
+        <br><br>
+        <a href="/download"><button>📄 Télécharger le rapport PDF</button></a>
+    {% endif %}
+</body>
+</html>
