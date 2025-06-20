@@ -1,10 +1,11 @@
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request
 import os
 import matplotlib.pyplot as plt
 from werkzeug.utils import secure_filename
-from io import BytesIO
+import smtplib
+from email.message import EmailMessage
 
-# Importer les fonctions depuis ton notebook (converties en .py ou copiées ici)
+# 📦 Importer les fonctions de traitement
 from mte4 import (
     spt_balance_by_file,
     rpw_balance_by_file,
@@ -15,72 +16,71 @@ from mte4 import (
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'uploads'
+OUTPUT_FOLDER = 'output'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-assignments = {}
-fig = None
-@app.route("/",methods=["POST"])
-def test():
-    return "<h1> Ça marche ✅</h1>"
-@app.route("/home", methods=["GET", "POST"])
-def index():
-    global assignments, fig
+# ✅ Paramètres Gmail (utilise un mot de passe d'application)
+GMAIL_ADDRESS = "jose5alfa18@gmail.com"  # Remplace ici
+GMAIL_APP_PASSWORD = "ewad dvhm mfak zpdh"  # Mot de passe application à 16 chiffres
 
+def envoyer_email_gmail(destinataire, fichier_pdf):
+    msg = EmailMessage()
+    msg["Subject"] = "📊 Rapport d’équilibrage"
+    msg["From"] = GMAIL_ADDRESS
+    msg["To"] = destinataire
+    msg.set_content("Bonjour,\n\nVeuillez trouver en pièce jointe le rapport d’équilibrage demandé.\n\nCordialement,\nL’équipe MTE")
+
+    with open(fichier_pdf, "rb") as f:
+        msg.add_attachment(f.read(), maintype="application", subtype="pdf", filename="rapport_equilibrage.pdf")
+
+    # Envoi via Gmail
+    with smtplib.SMTP("smtp.gmail.com", 587) as server:
+        server.starttls()
+        server.login(GMAIL_ADDRESS, GMAIL_APP_PASSWORD)
+        server.send_message(msg)
+
+@app.route("/", methods=["GET", "POST"])
+def index():
     if request.method == "POST":
-        method = request.form["method"]
+        method = request.form.get("method")
+        email = request.form.get("client_email")
         files = request.files.getlist("excel_files")
 
-        if not files:
-            return render_template("index.html", message="Aucun fichier sélectionné")
+        if not method or not email or not files:
+            return render_template("index.html", message="❌ Tous les champs sont requis.")
 
-        filepaths = []
-        for f in files:
-            filename = secure_filename(f.filename)
-            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            f.save(filepath)
-            filepaths.append(filepath)
+        try:
+            for f in files:
+                filename = secure_filename(f.filename)
+                path = os.path.join(UPLOAD_FOLDER, filename)
+                f.save(path)
 
-        # Un seul fichier traité à la fois pour simplicité
-        file = filepaths[0]
-        spt_model = spt_balance_by_file(file)
-        rpw_model = rpw_balance_by_file(file)
-        mte_model = mte_balance_by_file(file)
+                # Appliquer les méthodes
+                spt_model = spt_balance_by_file(path)
+                rpw_model = rpw_balance_by_file(path)
+                mte_model = mte_balance_by_file(path)
 
-        assignments = {
-            "SPT": (spt_model["ws"], spt_model["wst"]),
-            "RPW": (rpw_model["ws"], rpw_model["wst"]),
-            "MTE": (mte_model["ws"], mte_model["wst"])
-        }
-        fig1=plot_all_methods_by_file(filepath)
-        result_model = {"SPT": spt_model, "RPW": rpw_model, "MTE": mte_model}[method]
-        fig = result_model["fig"]
+                assignments = {
+                    "SPT": (spt_model["ws"], spt_model["wst"]),
+                    "RPW": (rpw_model["ws"], rpw_model["wst"]),
+                    "MTE": (mte_model["ws"], mte_model["wst"])
+                }
 
-        # Sauvegarder la figure temporairement
-        fig_path = os.path.join("static", "figure.png")
-        fig.savefig(fig_path)
-        fig1_path=os.path.join("static", "figure1.png")
-        fig1.savefig(fig1_path)
-        plt.close(fig)
-        plt.close(fig1)
+                fig = plot_all_methods_by_file(path)
+                pdf_path = os.path.join(OUTPUT_FOLDER, f"rapport_{filename}.pdf")
+                generate_equilibrage_pdf_single_figure(fig, assignments, pdf_path)
+                plt.close(fig)
 
-        return render_template("index.html", message="Équilibrage effectué", fig_path=fig_path)
+                envoyer_email_gmail(email, pdf_path)
+
+            return render_template("index.html", message=f"✅ Rapport envoyé à {email}")
+
+        except Exception as e:
+            return render_template("index.html", message=f"❌ Erreur pendant le traitement : {e}")
 
     return render_template("index.html")
-
-@app.route("/download")
-def download_pdf():
-    global fig1, fig,assignments
-
-    if fig is None or not assignments:
-        return "Aucun équilibrage effectué"
-
-    output_path = "output/rapport_equilibrage.pdf"
-    os.makedirs("output", exist_ok=True)
-    
-    generate_equilibrage_pdf_single_figure(fig1, assignments, output_path)
-
-    return send_file(output_path, as_attachment=True)
 
 if __name__ == "__main__":
     app.run(debug=True)

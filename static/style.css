@@ -1,18 +1,77 @@
 body {
-    font-family: sans-serif;
-    margin: 40px;
-    background-color: #f6f6f6;
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  background-color: #f4f6f8;
+  padding: 40px;
+  max-width: 900px;
+  margin: auto;
+  color: #333;
 }
-input, select, button {
-    padding: 10px;
-    margin-top: 10px;
+
+h1 {
+  text-align: center;
+  color: #1e3a8a;
 }
+
+form {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  margin-bottom: 30px;
+}
+
+label {
+  font-weight: bold;
+}
+
+input[type="file"],
+select {
+  width: 100%;
+  padding: 8px;
+  margin-top: 8px;
+  margin-bottom: 16px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
 button {
-    background-color: #007acc;
-    color: white;
-    border: none;
-    cursor: pointer;
+  background-color: #2563eb;
+  color: white;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
 }
+
 button:hover {
-    background-color: #005c99;
+  background-color: #1e40af;
+}
+
+img {
+  display: block;
+  margin: 20px auto;
+  border-radius: 8px;
+  max-width: 100%;
+}
+
+ul {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  list-style: none;
+}
+
+ul li {
+  margin-bottom: 8px;
+}
+
+.message {
+  background: #e0f2fe;
+  border-left: 4px solid #3b82f6;
+  padding: 10px;
+  margin-bottom: 20px;
+  border-radius: 6px;
 }

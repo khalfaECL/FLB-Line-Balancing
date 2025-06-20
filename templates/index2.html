@@ -34,6 +34,32 @@
     .section {
       padding: 60px 20px;
     }
+    .kpi-box {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    img.result-img {
+      max-width: 100%;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.08);
+    }
+    footer {
+      background-color: #1e3a8a;
+      color: white;
+      padding: 40px 20px;
+      text-align: center;
+    }
+    .footer-links a {
+      color: #cbd5e1;
+      margin: 0 10px;
+      text-decoration: none;
+    }
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
     .split-view {
       display: flex;
       flex-wrap: wrap;
@@ -51,20 +77,6 @@
       max-width: 90%;
       margin-bottom: 20px;
       border-radius: 10px;
-    }
-    footer {
-      background-color: #1e3a8a;
-      color: white;
-      padding: 40px 20px;
-      text-align: center;
-    }
-    .footer-links a {
-      color: #cbd5e1;
-      margin: 0 10px;
-      text-decoration: none;
-    }
-    .footer-links a:hover {
-      text-decoration: underline;
     }
   </style>
 </head>
@@ -98,16 +110,41 @@
             <option value="MTE">MTE</option>
           </select>
         </div>
-        <div class="mb-3">
-          <label class="form-label">Votre adresse e-mail :</label>
-          <input type="email" name="client_email" class="form-control" placeholder="exemple@entreprise.com" required>
-        </div>
-        <button type="submit" class="btn btn-primary">📤 Envoyer ma demande</button>
+        <button type="submit" class="btn btn-primary">⚙️ Lancer l'équilibrage</button>
       </form>
 
       {% if message %}
       <div class="alert alert-info mt-4" data-aos="fade-in">
         {{ message }}
+      </div>
+      {% endif %}
+
+      {% if fig_path %}
+      <div class="mt-5" data-aos="zoom-in">
+        <h3>Visualisation de la méthode</h3>
+        <img src="{{ fig_path }}" alt="Figure méthode" class="result-img">
+      </div>
+      {% endif %}
+
+      {% if kpis %}
+      <div class="row mt-5">
+        <h3 class="mb-3" data-aos="fade-right">KPIs</h3>
+        {% for k, v in kpis.items() %}
+        <div class="col-md-4" data-aos="fade-up" data-aos-delay="{{ loop.index * 100 }}">
+          <div class="kpi-box">
+            <h5>{{ k }}</h5>
+            <p class="text-muted">{{ v }}</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% if fig1_path %}
+      <div class="mt-5" data-aos="fade-up">
+        <h3>Comparatif des méthodes</h3>
+        <img src="{{ fig1_path }}" alt="Figure comparatif" class="result-img">
+        <a href="/download" class="btn btn-success mt-3">📄 Télécharger le rapport PDF</a>
       </div>
       {% endif %}
     </div>
@@ -120,7 +157,7 @@
       </p>
       <img src="/static/prod2.jpg" alt="Poste de couture">
       <p data-aos="fade-left" data-aos-delay="300">
-        Une fois vos fichiers soumis, notre équipe vous enverra le rapport d'analyse personnalisé directement par e-mail. Vous pouvez aussi accéder à vos résultats depuis votre espace sécurisé.
+        Que vous soyez responsable d'atelier ou analyste industriel, utilisez cette interface pour explorer, comparer et exporter vos schémas d'équilibrage.
       </p>
     </div>
   </main>

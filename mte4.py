@@ -8,7 +8,9 @@ Original file is located at
 
 #Extract data from excel files
 """
-
+import matplotlib
+matplotlib.use("Agg") 
+import matplotlib.pyplot as plt
 def tasks_exctraction(file_name="Equilibrage avec allure (3).xlsx",sheet_name="EQUILIBRAGE"):
     wb = load_workbook(file_name, data_only=True)
     sheet = wb[sheet_name]
@@ -16,16 +18,16 @@ def tasks_exctraction(file_name="Equilibrage avec allure (3).xlsx",sheet_name="E
         for cell in row:
             if cell.value == "BF":
                 BF = sheet.cell(row=cell.row, column=cell.column + 1).value
-                print(f"Valeur numérique à droite de 'BF': {BF}")
+                #print(f"Valeur numérique à droite de 'BF': {BF}")
             elif cell.value=="Effectif:":
                 Effectif = sheet.cell(row=cell.row, column=cell.column + 1).value
-                print(f"Valeur numérique à droite de 'Effectif:': {Effectif}")
+                #print(f"Valeur numérique à droite de 'Effectif:': {Effectif}")
             elif cell.value=="R% Cible ":
                 R_cible = sheet.cell(row=cell.row, column=cell.column + 1).value
-                print(f"Valeur numérique à droite de 'R% Cible': {R_cible}")
+                #print(f"Valeur numérique à droite de 'R% Cible': {R_cible}")
             elif cell.value=="Prod Cible":
                 Prod_cible = sheet.cell(row=cell.row, column=cell.column + 1).value
-                print(f"Valeur numérique à droite de 'Prod Cible': {Prod_cible}")
+                #print(f"Valeur numérique à droite de 'Prod Cible': {Prod_cible}")
     noms_colonnes_attendus=["Operation"	,"POSTE"	 ,"Machine"	,"Prédécesseurs"	,	"TA"	,"Activité" ]
     for i, row in enumerate(sheet.iter_rows(values_only=True), start=1):
             if row is None:
@@ -98,18 +100,16 @@ def tasks_exctraction(file_name="Equilibrage avec allure (3).xlsx",sheet_name="E
     #open_days=open_days
     #working_time=working_time #heures de travail hors pauses
     #TT=working_time*60*open_days/cust_demand # calcul de Takt Time
+    #-------------------------------------------------------------------------------------------
     #print('customer demand : ',Prod_cible)
     #print('BF : ',BF)
+    #-----------------------------------------------------------------------------
     #num_operators=round(time_total/TT)
+    #-----------------------------------------------------------------------------
     #print('nombre des effectifs :',Effectif)
     #print('R_cible :',R_cible)
     return {"BF":BF,"Prod_cible":Prod_cible,"Effectif":Effectif,"tasks":tasks,"R_cible":R_cible,"TA_total":TA_total}
 
-"""# MTE balancing version 4
-
-"""
-
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from collections import defaultdict, deque
@@ -197,7 +197,8 @@ class PrecedenceLineBalancing:
         #plt.figure(figsize=(10, 5))
         fig=plt.figure(figsize=(10, 5))
         #------------------------------------------------------------------------------<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        cmap = cm.get_cmap('tab20')
+        #cmap = cm.get_cmap('tab20')
+        cmap = plt.get_cmap('tab20')
         color_map = {}
         color_index = 0
 
@@ -221,8 +222,8 @@ class PrecedenceLineBalancing:
         plt.ylim(0, max(values + [self.BF]) + 2)
         plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
         plt.tight_layout()
-        plt.close()
         #plt.show()
+        plt.close()
         return fig #--------------------------------------------------------------<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     def display_assignment(self):
@@ -388,7 +389,8 @@ class SPTLineBalancer:
         values = self.workstation_times
 
         fig=plt.figure(figsize=(10, 5))
-        cmap = cm.get_cmap('tab20')
+        #cmap = cm.get_cmap('tab20')
+        cmap = plt.get_cmap('tab20')
         color_map = {}
         color_index = 0
 
@@ -543,7 +545,8 @@ class RPWLineBalancer:
         values = self.workstation_times
 
         fig=plt.figure(figsize=(10, 5))
-        cmap = cm.get_cmap('tab20')
+        #cmap = cm.get_cmap('tab20')
+        cmap = plt.get_cmap('tab20')
         color_map = {}
         color_index = 0
 
@@ -674,14 +677,14 @@ def compute_kpis_from_directory(directory_path, methods_txt_path):
     df = pd.DataFrame(results)
     return df
 
-#compute_kpis_from_directory("data","algo_list.txt")
+compute_kpis_from_directory("data","algo_list.txt")
 
 import pandas as pd
 
 def export_tableau_comparatif(df, output_path="comparatif_equilibrage.xlsx"):
     with pd.ExcelWriter(output_path, engine="xlsxwriter") as writer:
         df.to_excel(writer, sheet_name="Résultats", index=False)
-    #print(f"✅ Tableau exporté dans : {output_path}")
+    print(f"✅ Tableau exporté dans : {output_path}")
 
 #!pip install xlsxwriter
 
@@ -792,8 +795,7 @@ def plot_comparative_curves(df, output_path="comparatif.xlsx"):
     plt.grid(True, linestyle='--', alpha=0.6)
     plt.legend(title='Algorithme')
     plt.tight_layout()
-    #plt.show()
-    plt.close()
+    plt.show()
     return fig_des,fig_eff
 # Assuming 'comparatif.xlsx' is generated and saved from the previous step
 # Call the plotting function
@@ -803,13 +805,14 @@ def plot_comparative_curves(df, output_path="comparatif.xlsx"):
 
 """
 
-def plot_distribution_on_axis(method,ax, bf,title='Distribution'):
+def plot_distribution_on_axis(method,ax, bf,title):
     labels = [f"Poste {i+1}" for i in range(len(method["ws"]))]
     values = method["wst"]
 
     ax.clear() # Clear previous content from the axis
 
-    cmap = cm.get_cmap('tab20')
+    #cmap = cm.get_cmap('tab20')
+    cmap = plt.get_cmap('tab20')
     color_map = {}
     color_index = 0
 
@@ -834,6 +837,9 @@ def plot_distribution_on_axis(method,ax, bf,title='Distribution'):
     ax.tick_params(axis='both', which='major', labelsize=8) # Smaller tick labels
     # Place legend outside the plot if it's too big
     ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), fontsize=7)
+PrecedenceLineBalancing.plot_distribution_on_axis = plot_distribution_on_axis
+SPTLineBalancer.plot_distribution_on_axis = plot_distribution_on_axis
+RPWLineBalancer.plot_distribution_on_axis = plot_distribution_on_axis
 
 def plot_all_methods_by_file(file_name="Equilibrage avec allure (3).xlsx",methods_txt_path="algo_list.txt"):
     selected_methods = read_methods_from_txt(methods_txt_path)
@@ -863,7 +869,7 @@ def plot_all_methods_by_file(file_name="Equilibrage avec allure (3).xlsx",method
                     #model_mte = PrecedenceLineBalancing(tasks, BF=bf)
                     #model_mte.balance_line()
                     # Plot on the first available axis
-                    plot_distribution_on_axis(model_mte,axes[plot_index], bf,title=f'MTE - {file_name}')
+                    plot_distribution_on_axis(model_mte,axes[plot_index], bf,f"MTE - {file_name}")
                     plot_index += 1
                 except Exception as e:
                     print(f"Error running MTE for {file_name}: {e}")
@@ -878,7 +884,7 @@ def plot_all_methods_by_file(file_name="Equilibrage avec allure (3).xlsx",method
                     #model_spt = SPTLineBalancer(tasks, bf)
                     #model_spt.run()
                     # Plot on the next available axis
-                    plot_distribution_on_axis(model_spt,axes[plot_index],bf, title=f'SPT - {file_name}')
+                    plot_distribution_on_axis(model_spt,axes[plot_index],bf, f"SPT - {file_name}")
                     plot_index += 1
                 except Exception as e:
                     print(f"Error running SPT for {file_name}: {e}")
@@ -893,7 +899,7 @@ def plot_all_methods_by_file(file_name="Equilibrage avec allure (3).xlsx",method
                     #model_rpw = RPWLineBalancer(tasks, bf)
                     #model_rpw.run()
                     # Plot on the next available axis
-                    plot_distribution_on_axis(model_rpw,axes[plot_index], bf,title=f'RPW - {file_name}')
+                    plot_distribution_on_axis(model_rpw,axes[plot_index], bf,f"RPW - {file_name}")
                     plot_index += 1
                 except Exception as e:
                     print(f"Error running RPW for {file_name}: {e}")
@@ -913,7 +919,7 @@ def plot_all_methods_by_file(file_name="Equilibrage avec allure (3).xlsx",method
         print(f"Error processing file {file_name}: {e}")
     return fig
 
-#plot_all_methods_by_file(file_name="data/Equilibrage avec allure (3).xlsx",methods_txt_path="algo_list.txt")
+#plot_all_methods_by_file(file_name="data/Equilibrage_61228(2).xlsx",methods_txt_path="algo_list.txt")
 
 def plot_all_solutions(directory_path="data", methods_txt_path="algo_list.txt"):
     """
@@ -993,49 +999,14 @@ def plot_all_solutions(directory_path="data", methods_txt_path="algo_list.txt"):
                 axes[i].axis('off')
 
             plt.tight_layout()
-            plt.show()
+            #plt.show()
+            plt.close()
 
         except Exception as e:
             print(f"Error processing file {filename}: {e}")
     return fig #--------------------------------------------------------<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # Add methods to plotting classes to plot on a specific axis
 # This avoids creating a new figure for each plot
-def plot_distribution_on_axis(self, ax, title='Distribution'):
-    labels = [f"Poste {i+1}" for i in range(len(self.workstations))]
-    values = self.workstation_times
-
-    ax.clear() # Clear previous content from the axis
-
-    cmap = cm.get_cmap('tab20')
-    color_map = {}
-    color_index = 0
-
-    bottom = np.zeros(len(self.workstations))
-    for i, tasks in enumerate(self.workstations):
-        for task, duration in tasks:
-            if task not in color_map:
-                color_map[task] = cmap(color_index % 20)
-                color_index += 1
-            ax.bar(labels[i], duration, bottom=bottom[i], color=color_map[task], label=task if task not in [h.get_label() for h in ax.get_legend_handles_labels()[0]] else "")
-            bottom[i] += duration
-
-    ax.axhline(y=self.BF, color='r', linestyle='--', label=f'BF={self.BF:.2f}')
-
-    for i, val in enumerate(values):
-        ax.text(i, val + 0.1, f"{val:.2f}", ha='center', va='bottom', fontsize=8) # Smaller font for labels
-
-    ax.set_title(title, fontsize=10) # Smaller font for title
-    ax.set_xlabel('Postes', fontsize=8) # Smaller font for labels
-    ax.set_ylabel('Temps (min)', fontsize=8) # Smaller font for labels
-    ax.set_ylim(0, max(values + [self.BF]) + 1)
-    ax.tick_params(axis='both', which='major', labelsize=8) # Smaller tick labels
-    # Place legend outside the plot if it's too big
-    ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), fontsize=7)
-
-# Assign the new plotting method to the classes
-PrecedenceLineBalancing.plot_distribution_on_axis = plot_distribution_on_axis
-SPTLineBalancer.plot_distribution_on_axis = plot_distribution_on_axis
-RPWLineBalancer.plot_distribution_on_axis = plot_distribution_on_axis
 
 # Execute the plotting function
 #plot_all_solutions("data", "algo_list.txt")
@@ -1124,4 +1095,175 @@ def generate_equilibrage_pdf_single_figure(fig: Figure, assignments: Dict[str, T
 
 #generate_equilibrage_pdf_single_figure(fig1,assignments)
 
+"""#application web
 
+"""
+
+#pip install --upgrade ipywidgets
+
+# prompt: faire une application pour importer un ou plusieurs fichiers excel
+# une liste pour choisie une methode (mte,spt ou rpw) puis applique la fonction d'equilibrage correspondante et affiche dans la meme formulaire ou espace de l'application les resultats(les visualisation pour le ou les fichiers(s) importes et la methode choisie en cliquant sur le bouton "equilibrer"
+# si on clique sur le bouton "generer rapport" on definit les trois methodes et on cree la variable assignment et on applique plot_all_methods_by_file puis generate_equilibrage_pdf_single_figure
+# on applique generate_equilibrage_pdf_single_figure
+# NB: utiliser ces fontions predefinis spt_balance_by_file,
+#     rpw_balance_by_file,
+#     mte_balance_by_file,
+#     generate_equilibrage_pdf_single_figure,
+#     plot_all_methods_by_file)
+"""
+import ipywidgets as widgets
+from IPython.display import display, clear_output
+import pandas as pd
+import os
+
+output_area = widgets.Output()
+
+def upload_files(b):
+    with output_area:
+        clear_output()
+        print("Please upload your Excel file(s):")
+        from google.colab import files
+        uploaded = files.upload()
+        #Create a 'data' directory if it doesn't exist
+        if not os.path.exists('data'):
+            os.makedirs('data')
+        for name, data in uploaded.items():
+            with open(f'data/{name}', 'wb') as f:
+                f.write(data)
+            print(f'Uploaded {name} to data folder.')
+
+def equilibrer_action(b):
+    with output_area:
+        clear_output()
+        selected_method = method_dropdown.value
+        # For simplicity, let's assume we process the first uploaded file in the 'data' directory
+        # In a real application, you'd need to handle multiple files and selection
+        data_files = [f for f in os.listdir('data') if f.endswith((".xlsx", ".xls"))]
+        if not data_files:
+            print("No Excel files found in the 'data' directory. Please upload files first.")
+            return
+
+        file_name = os.path.join('data', data_files[0]) # Process the first file found
+
+        print(f"Balancing '{file_name}' using method: {selected_method}")
+
+        # Write the selected method to algo_list.txt
+        with open("algo_list.txt", "w") as f:
+            f.write(selected_method + "\n")
+
+        try:
+            # Execute the balancing function for the selected method
+            if selected_method == "MTE":
+                result = mte_balance_by_file(file_name)
+            elif selected_method == "SPT":
+                result = spt_balance_by_file(file_name)
+            elif selected_method == "RPW":
+                result = rpw_balance_by_file(file_name)
+            else:
+                print("Invalid method selected.")
+                return
+
+            # Display results
+            print("\nWorkstation Assignment:")
+            for i, (ws, t) in enumerate(zip(result["ws"], result["wst"])):
+                 if ws:
+                    ops = [f"{task} ({dur:.2f} min)" for task, dur in ws]
+                    print(f"Poste {i+1} ({t:.2f} min): {', '.join(ops)}")
+
+            print("\nKPIs:")
+            for k, v in result["kpis"].items():
+                print(f"{k} : {v}")
+
+            # Display the plot
+            display(result["fig"])
+
+        except Exception as e:
+            print(f"An error occurred during balancing: {e}")
+
+
+def generer_rapport_action(b):
+    with output_area:
+        clear_output()
+        print("Generating comparative report...")
+
+        # Write all three methods to algo_list.txt for comparative report
+
+        data_directory = 'data'
+        methods_file = 'algo_list.txt'
+        output_excel = 'comparatif.xlsx'
+        output_pdf = 'rapport_equilibrage.pdf'
+
+
+        data_files = [f for f in os.listdir('data') if f.endswith((".xlsx", ".xls"))]
+        if not data_files:
+            print("No Excel files found in the 'data' directory. Please upload files first.")
+            return
+        # Assuming we generate a single report based on the first uploaded file
+        file_name_for_single_plot = os.path.join('data', data_files[0])
+
+
+        try:
+            # Generate the comparative table
+            df_comparatif = compute_kpis_from_directory(data_directory, methods_file)
+            export_tableau_comparatif(df_comparatif, output_excel)
+            print(f"Comparative table generated at: {output_excel}")
+
+            # Generate the combined plot for the first file for the PDF report
+            fig_single_file = plot_all_methods_by_file(file_name=file_name_for_single_plot, methods_txt_path=methods_file)
+            #display(fig_single_file) # Display the single file plot
+
+            # Prepare assignments for the PDF from the single file analysis
+            mte_result = mte_balance_by_file(file_name_for_single_plot)
+            spt_result = spt_balance_by_file(file_name_for_single_plot)
+            rpw_result = rpw_balance_by_file(file_name_for_single_plot)
+
+
+            assignments = {
+                "MTE": (mte_result["ws"], mte_result["wst"]),
+                "SPT": (spt_result["ws"], spt_result["wst"]),
+                "RPW": (rpw_result["ws"], rpw_result["wst"])
+            }
+
+
+            # Generate the PDF report using the single file figure and assignments
+            generate_equilibrage_pdf_single_figure(fig_single_file, assignments, output_pdf)
+            print(f"Report PDF generated at: {output_pdf}")
+
+             # Plot comparative curves for all files and all methods
+            # This will display separate figures for efficiency and disbalance
+            print("\nComparative Curves for all files:")
+            plot_comparative_curves(df_comparatif, output_excel)
+
+
+        except Exception as e:
+            print(f"An error occurred during report generation: {e}")
+
+
+
+# Create UI elements
+upload_button = widgets.Button(description="Importer Fichiers Excel")
+method_dropdown = widgets.Dropdown(
+    options=['MTE', 'SPT', 'RPW'],
+    value='MTE',
+    description='Méthode:',
+    disabled=False,
+)
+equilibrer_button = widgets.Button(description="Equilibrer")
+generer_rapport_button = widgets.Button(description="Générer Rapport Comparatif")
+
+# Link actions to buttons
+upload_button.on_click(upload_files)
+equilibrer_button.on_click(equilibrer_action)
+generer_rapport_button.on_click(generer_rapport_action)
+
+# Arrange and display the UI
+app_layout = widgets.VBox([
+    upload_button,
+    method_dropdown,
+    equilibrer_button,
+    generer_rapport_button,
+    output_area
+])
+
+display(app_layout)
+"""
