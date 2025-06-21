@@ -1,6 +1,5 @@
+# app.py
 from flask import Flask, render_template, request, send_file
-
-#from flask import Flask, render_template, request
 import os
 import matplotlib.pyplot as plt
 from werkzeug.utils import secure_filename
@@ -8,7 +7,6 @@ import smtplib
 from email.message import EmailMessage
 import csv
 from datetime import datetime
-# 📦 Importer les fonctions de traitement
 from mte4 import (
     spt_balance_by_file,
     rpw_balance_by_file,
@@ -24,9 +22,8 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# ✅ Paramètres Gmail (utilise un mot de passe d'application)
-GMAIL_ADDRESS = "jose5alfa18@gmail.com"  # Remplace ici
-GMAIL_APP_PASSWORD = "bokh utph zhtl ivqp"  # Mot de passe application à 16 chiffres
+GMAIL_ADDRESS = "jose5alfa18@gmail.com"
+GMAIL_APP_PASSWORD = "bokh utph zhtl ivqp"
 
 def envoyer_email_gmail(destinataire, fichier_pdf):
     msg = EmailMessage()
@@ -38,18 +35,13 @@ def envoyer_email_gmail(destinataire, fichier_pdf):
     with open(fichier_pdf, "rb") as f:
         msg.add_attachment(f.read(), maintype="application", subtype="pdf", filename="rapport_equilibrage.pdf")
 
-    # Envoi via Gmail
-    #with smtplib.SMTP("smtp.gmail.com", 465) as server:
-    #    server.starttls()
-    #    server.login(GMAIL_ADDRESS, GMAIL_APP_PASSWORD)
-    #    server.send_message(msg)
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
         server.login(GMAIL_ADDRESS, GMAIL_APP_PASSWORD)
         server.send_message(msg)
-ADMIN_CSV = "demandes.csv"
-OUTPUT_FOLDER = "output"
 
-# 🔁 Lecture des requêtes clients depuis le CSV
+ADMIN_CSV = "demandes.csv"
+
+
 def lire_demandes():
     if not os.path.exists(ADMIN_CSV):
         return []
@@ -57,13 +49,11 @@ def lire_demandes():
         reader = csv.DictReader(f)
         return list(reader)
 
-# 🔐 Route admin : affichage de toutes les demandes clients
 @app.route("/admin")
 def admin_dashboard():
     demandes = lire_demandes()
     return render_template("admin2.html", demandes=demandes)
 
-# 📄 Téléchargement d'un rapport PDF depuis l'espace admin
 @app.route("/admin/download/<pdf_name>")
 def download_pdf_admin(pdf_name):
     pdf_path = os.path.join(OUTPUT_FOLDER, pdf_name)
@@ -85,17 +75,14 @@ def envoyer_depuis_admin(index):
     try:
         envoyer_email_gmail(email, pdf_path)
         demandes[index]["statut"] = "Envoyé"
-        # Réécrire le fichier CSV avec le statut mis à jour
         with open("demandes.csv", "w", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=["date", "email", "fichier", "methode", "statut", "pdf"])
             writer.writeheader()
             writer.writerows(demandes)
 
         return f"✅ Rapport envoyé à {email} ! <a href='/admin'>Retour</a>"
-
     except Exception as e:
         return f"❌ Erreur lors de l'envoi : {e}"
-
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -113,7 +100,6 @@ def index():
                 path = os.path.join(UPLOAD_FOLDER, filename)
                 f.save(path)
 
-                # Appliquer les méthodes
                 spt_model = spt_balance_by_file(path)
                 rpw_model = rpw_balance_by_file(path)
                 mte_model = mte_balance_by_file(path)
@@ -129,7 +115,6 @@ def index():
                 generate_equilibrage_pdf_single_figure(fig, assignments, pdf_path)
                 plt.close(fig)
 
-                #envoyer_email_gmail(email, pdf_path)
                 with open("demandes.csv", "a", newline="", encoding="utf-8") as f:
                     writer = csv.DictWriter(f, fieldnames=["date", "email", "fichier", "methode", "statut", "pdf"])
                     if f.tell() == 0:
@@ -143,9 +128,7 @@ def index():
                         "pdf": f"rapport_{filename}.pdf"
                     })
 
-            #return render_template("index.html", message=f"✅ Rapport envoyé à {email}")
             return render_template("index.html", message="✅ Demande envoyée. En attente de réponse. Veuillez vérifier votre boîte mail.")
-
         except Exception as e:
             return render_template("index.html", message=f"❌ Erreur pendant le traitement : {e}")
 
