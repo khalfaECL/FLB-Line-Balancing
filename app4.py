@@ -26,7 +26,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # ✅ Paramètres Gmail (utilise un mot de passe d'application)
 GMAIL_ADDRESS = "jose5alfa18@gmail.com"  # Remplace ici
-GMAIL_APP_PASSWORD = "bokh utph zhtl ivqp"  # Mot de passe application à 16 chiffres
+GMAIL_APP_PASSWORD = "btit oozh rqha eawn"  # Mot de passe application à 16 chiffres
 
 def envoyer_email_gmail(destinataire, fichier_pdf):
     msg = EmailMessage()
