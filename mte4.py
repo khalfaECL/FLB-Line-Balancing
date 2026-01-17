@@ -677,7 +677,8 @@ def compute_kpis_from_directory(directory_path, methods_txt_path):
     df = pd.DataFrame(results)
     return df
 
-compute_kpis_from_directory("data","algo_list.txt")
+if __name__ == "__main__":
+    compute_kpis_from_directory("data", "algo_list.txt")
 
 import pandas as pd
 
