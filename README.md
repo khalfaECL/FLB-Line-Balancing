@@ -35,6 +35,35 @@ URLs:
 - Frontend: `http://localhost:5173`
 - API health: `http://localhost:8000/api/health`
 
+## Package (GitHub Packages / GHCR)
+
+This repo publishes Docker images to GitHub Container Registry via GitHub Actions.
+
+Images:
+- `ghcr.io/<owner>/<repo>-api`
+- `ghcr.io/<owner>/<repo>-frontend`
+
+Triggers:
+- Push to `main`
+- Tag `v*`
+- Manual run (Actions tab)
+
+Notes:
+- In GitHub: Settings → Actions → Workflow permissions → set **Read and write**.
+- The frontend image runs Vite dev server. Provide `VITE_API_URL` at runtime.
+
+Example (local run):
+```
+docker pull ghcr.io/<owner>/<repo>-api:latest
+
+docker run --rm -p 8000:8000 --env-file .env ghcr.io/<owner>/<repo>-api:latest
+
+# frontend (set API URL)
+docker pull ghcr.io/<owner>/<repo>-frontend:latest
+
+docker run --rm -p 5173:5173 -e VITE_API_URL=http://localhost:8000 ghcr.io/<owner>/<repo>-frontend:latest
+```
+
 ## Environment variables (backend)
 
 Required:
